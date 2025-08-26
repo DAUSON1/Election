@@ -1,57 +1,102 @@
 <?php
 session_start();
 if(!isset($_SESSION['admin'])){
-    header("Location: login.php");
+    header("Location: admin_login.php");
     exit;
 }
-include "db.php";
-
-$result = $conn->query("SELECT * FROM leaders");
 ?>
 
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>Admin Dashboard</title>
-<style>
-body{font-family: Arial; background:#f4f4f4; margin:0; padding:0;}
-table{width:80%; margin:20px auto; border-collapse: collapse; background:#fff;}
-th, td{padding:10px; border:1px solid #ddd; text-align:center;}
-th{background:#333; color:#fff;}
-a{color:#007bff; text-decoration:none;}
-a:hover{color:#0056b3;}
-h1{text-align:center;}
-.logout{position:absolute; top:10px; right:20px;}
-</style>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f9;
+            margin: 0;
+            padding: 0;
+        }
+        .header {
+            background: #2c3e50;
+            color: white;
+            padding: 15px;
+            text-align: center;
+        }
+        .sidebar {
+            width: 220px;
+            background: #34495e;
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            padding-top: 20px;
+        }
+        .sidebar a {
+            display: block;
+            color: #ecf0f1;
+            padding: 12px 20px;
+            text-decoration: none;
+            margin: 5px 0;
+        }
+        .sidebar a:hover {
+            background: #1abc9c;
+        }
+        .content {
+            margin-left: 240px;
+            padding: 20px;
+        }
+        .card {
+            background: white;
+            border-radius: 5px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0px 2px 5px rgba(0,0,0,0.2);
+        }
+        h2 {
+            margin-top: 0;
+        }
+        .logout {
+            background: #e74c3c !important;
+            color: white !important;
+        }
+        .logout:hover {
+            background: #c0392b !important;
+        }
+    </style>
 </head>
 <body>
-<h1>Admin Dashboard</h1>
-<p class="logout"><a href="logout.php">Logout</a></p>
 
-<p style="text-align:center;"><a href="add_leader.php">Add New Leader</a></p>
+    <div class="header">
+        <h1>🗳️ Admin Dashboard</h1>
+        <p>Welcome, <?= $_SESSION['admin'] ?>!</p>
+    </div>
 
-<table>
-<tr>
-<th>ID</th>
-<th>Name</th>
-<th>Party</th>
-<th>Votes</th>
-<th>Actions</th>
-</tr>
+    <div class="sidebar">
+        <a href="admin_dashboard.php">🏠 Dashboard</a>
+        <a href="admin_manage_leaders.php">👔 Manage Leaders</a>
+        <a href="add_leader.php">➕ Add Leader</a>
+        <a href="index.php">📊 View Public Results</a>
+        <a class="logout" href="logout.php">🚪 Logout</a>
+    </div>
 
-<?php while($row = $result->fetch_assoc()): ?>
-<tr>
-<td><?= $row['id'] ?></td>
-<td><?= $row['name'] ?></td>
-<td><?= $row['party'] ?></td>
-<td><?= $row['votes'] ?></td>
-<td>
-    <a href="edit_leader.php?id=<?= $row['id'] ?>">Edit</a> | 
-    <a href="delete_leader.php?id=<?= $row['id'] ?>" onclick="return confirm('Are you sure?')">Delete</a>
-</td>
-</tr>
-<?php endwhile; ?>
-</table>
+    <div class="content">
+        <div class="card">
+            <h2>Quick Overview</h2>
+            <p>✔ Manage presidential candidates (leaders)</p>
+            <p>✔ Monitor real-time votes and results</p>
+            <p>✔ Add, Edit or Delete candidates</p>
+        </div>
+
+        <div class="card">
+            <h2>Next Steps</h2>
+            <ul>
+                <li>Go to <b>Manage Leaders</b> to update candidates.</li>
+                <li>Use <b>View Public Results</b> to see voting trends.</li>
+                <li>Remember to <b>Logout</b> after finishing your session.</li>
+            </ul>
+        </div>
+    </div>
 
 </body>
 </html>

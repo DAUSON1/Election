@@ -1,123 +1,101 @@
 <?php
-include "db.php";
-
-// Fetch leaders
-$result = $conn->query("SELECT * FROM leaders");
-$total_votes = $conn->query("SELECT SUM(votes) as total FROM leaders")->fetch_assoc()['total'];
-
-// Prepare data for charts
-$leader_names = [];
-$leader_votes = [];
-$result->data_seek(0);
-while($row = $result->fetch_assoc()){
-    $leader_names[] = $row['name'];
-    $leader_votes[] = $row['votes'];
-}
+session_start();
 ?>
-
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Presidential Election Dashboard</title>
+    <meta charset="UTF-8">
+    <title>Presidential Election Simulation</title>
     <style>
-        body{font-family: Arial; background:#f4f4f4; margin:0; padding:0;}
-        table{width:80%; margin:20px auto; border-collapse: collapse; background:#fff;}
-        th, td{padding:10px; border:1px solid #ddd; text-align:center;}
-        th{background:#333; color:#fff;}
-        h1{text-align:center;}
-        .vote-btn{padding:5px 10px; background:#28a745; color:#fff; border:none; cursor:pointer;}
-        .vote-btn:hover{background:#218838;}
-        #chart-container{width:80%; margin:30px auto; background:#fff; padding:20px; border-radius:5px;}
-        .charts{display:flex; justify-content: space-around; flex-wrap: wrap;}
-        canvas{background:#fff; padding:10px; border-radius:5px;}
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #f9f9f9;
+        }
+        /* Topbar */
+        .topbar {
+            background: #2c3e50;
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .topbar h2 {
+            margin: 0;
+        }
+        .topbar .menu a {
+            color: white;
+            text-decoration: none;
+            margin-left: 20px;
+            font-weight: bold;
+        }
+        .topbar .menu a:hover {
+            color: #1abc9c;
+        }
+        /* Content */
+        .content {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 70vh;
+            text-align: center;
+        }
+        .content h1 {
+            font-size: 40px;
+            color: #2c3e50;
+        }
+        .content p {
+            font-size: 18px;
+            color: #555;
+        }
+        /* Footer */
+        .footer {
+            background: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 15px;
+            position: fixed;
+            width: 100%;
+            bottom: 0;
+        }
+        .footer a {
+            color: #1abc9c;
+            margin: 0 10px;
+            text-decoration: none;
+        }
+        .footer a:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
-<h1>Presidential Election Simulation</h1>
 
-<table>
-<tr>
-    <th>Name</th>
-    <th>Party</th>
-    <th>Votes</th>
-    <th>Percentage</th>
-    <th>Vote</th>
-</tr>
+    <!-- Topbar -->
+    <div class="topbar">
+        <h2>🗳️ Presidential Election Simulation</h2>
+        <div class="menu">
+            <a href="user_login.php">Login</a>
+            <a href="user_register.php">Sign Up</a>
+            <a href="admin_login.php">Manager</a>
+        </div>
+    </div>
 
-<?php
-$result->data_seek(0);
-while($row = $result->fetch_assoc()):
-?>
-<tr>
-    <td><?= $row['name'] ?></td>
-    <td><?= $row['party'] ?></td>
-    <td><?= $row['votes'] ?></td>
-    <td><?= $total_votes ? round(($row['votes']/$total_votes)*100,2)."%" : "0%" ?></td>
-    <td>
-        <form method="post" action="vote.php">
-            <input type="hidden" name="leader_id" value="<?= $row['id'] ?>">
-            <button class="vote-btn" type="submit">Vote</button>
-        </form>
-    </td>
-</tr>
-<?php endwhile; ?>
-</table>
+    <!-- Main Content -->
+    <div class="content">
+        <div>
+            <h1>Welcome to the Presidential Election Simulation System</h1>
+            <p>Track leaders, simulate voting, and view results in real-time.</p>
+        </div>
+    </div>
 
-<p style="text-align:center;"><a href="add_leader.php">Add New Leader</a></p>
-
-<div id="chart-container" class="charts">
-    <canvas id="barChart" width="400" height="250"></canvas>
-    <canvas id="pieChart" width="400" height="250"></canvas>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-const leaderNames = <?= json_encode($leader_names) ?>;
-const leaderVotes = <?= json_encode($leader_votes) ?>;
-
-// Bar Chart
-const ctxBar = document.getElementById('barChart').getContext('2d');
-const barChart = new Chart(ctxBar, {
-    type: 'bar',
-    data: {
-        labels: leaderNames,
-        datasets: [{
-            label: 'Votes',
-            data: leaderVotes,
-            backgroundColor: 'rgba(54, 162, 235, 0.6)',
-            borderColor: 'rgba(54, 162, 235, 1)',
-            borderWidth: 1
-        }]
-    },
-    options: {
-        scales: { y: {beginAtZero:true, precision:0} }
-    }
-});
-
-// Pie Chart
-const ctxPie = document.getElementById('pieChart').getContext('2d');
-const pieChart = new Chart(ctxPie, {
-    type: 'pie',
-    data: {
-        labels: leaderNames,
-        datasets: [{
-            label: 'Vote Percentage',
-            data: leaderVotes,
-            backgroundColor: [
-                'rgba(255, 99, 132, 0.6)',
-                'rgba(54, 162, 235, 0.6)',
-                'rgba(255, 206, 86, 0.6)',
-                'rgba(75, 192, 192, 0.6)',
-                'rgba(153, 102, 255, 0.6)',
-                'rgba(255, 159, 64, 0.6)'
-            ],
-            borderColor: 'rgba(255,255,255,1)',
-            borderWidth:1
-        }]
-    },
-    options: { responsive:true }
-});
-</script>
+    <!-- Footer -->
+    <div class="footer">
+        <a href="#">About Us</a> | 
+        <a href="#">Contact Us</a> | 
+        <a href="#">Help</a>
+    </div>
 
 </body>
 </html>

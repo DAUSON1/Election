@@ -11,7 +11,7 @@ if(isset($_POST['submit'])){
     move_uploaded_file($_FILES['image']['tmp_name'], $target);
     
     $conn->query("INSERT INTO leaders (name, party, image) VALUES ('$name', '$party', '$target')");
-    header("Location: index.php");
+    header("Location: admin_dashboard.php");
 }
 ?>
 
